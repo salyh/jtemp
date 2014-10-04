@@ -34,6 +34,7 @@ import java.util.Map;
 
 import javax.json.Json;
 import javax.json.JsonArray;
+import javax.json.JsonException;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
 import javax.json.JsonStructure;
@@ -75,6 +76,39 @@ public class JsonReaderImplTest {
         assertEquals(1, array.getInt(0));
         assertEquals(-2, array.getInt(1));
         reader.close();
+    }
+    
+    @Test
+    public void duplicateKey() {
+        final JsonReader reader = Json.createReaderFactory(new HashMap<String, Object>() {
+            {
+                put("org.apache.johnzon.default-char-buffer", "2048");
+            }
+        }).createReader(Thread.currentThread().getContextClassLoader().getResourceAsStream("json/dupkey.json"), utf8Charset);
+        assertNotNull(reader);
+        final JsonObject object = reader.readObject();
+        assertNotNull(object);
+        assertEquals(1, object.size());
+        assertThat(object.get("a"), instanceOf(JsonArray.class));
+        final JsonArray array = object.getJsonArray("a");
+        assertNotNull(array);
+        assertEquals(2, array.size());
+        assertEquals(1, array.getInt(0));
+        assertEquals(-2, array.getInt(1));
+        reader.close();
+    }
+    
+    @Test(expected=JsonException.class)
+    public void duplicateKeyNotAllowed() {
+        final JsonReader reader = Json.createReaderFactory(new HashMap<String, Object>() {
+            {
+                put(JsonBuilderFactoryImpl.ALLOW_DUPLICATE_KEYS, false);
+                put("org.apache.johnzon.default-char-buffer", "2048");
+            }
+        }).createReader(Thread.currentThread().getContextClassLoader().getResourceAsStream("json/dupkey.json"), utf8Charset);
+        assertNotNull(reader);
+        reader.readObject();
+        
     }
 
     @Test
@@ -172,7 +206,6 @@ public class JsonReaderImplTest {
     @Test
     public void specialKeysWithStringAsByteArrayInputStream() {
         final String s = "{\"\\\"a\":\"\u0055\",\"\u0055\":\"test2\"}";
-        System.out.println(s);
         final JsonReader reader = Json.createReaderFactory(getFactoryConfig()).createReader(
                 new ByteArrayInputStream(s.getBytes(utf8Charset)), utf8Charset);
         assertNotNull(reader);

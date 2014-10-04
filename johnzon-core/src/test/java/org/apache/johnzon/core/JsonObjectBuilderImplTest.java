@@ -20,7 +20,11 @@ package org.apache.johnzon.core;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.HashMap;
+
 import javax.json.Json;
+import javax.json.JsonException;
+import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 
 import org.junit.Test;
@@ -31,5 +35,27 @@ public class JsonObjectBuilderImplTest {
         final JsonObjectBuilder builder = Json.createObjectBuilder();
         builder.add("a", "b");
         assertEquals("{\"a\":\"b\"}", builder.build().toString());
+    }
+    
+    @Test
+    public void dups() {
+        final JsonObjectBuilder builder = Json.createObjectBuilder();
+        builder.add("a", "b");
+        builder.add("a", "c");
+        JsonObject jo = builder.build();
+        assertEquals("{\"a\":\"c\"}", jo.toString());
+        assertEquals(1,  jo.size());
+    }
+    
+    @Test(expected=JsonException.class)
+    public void dupsNotAllowed() {
+        final JsonObjectBuilder builder = Json.createBuilderFactory(new HashMap<String, Object>() {
+            {
+                put(JsonBuilderFactoryImpl.ALLOW_DUPLICATE_KEYS, "false");
+            }
+        }).createObjectBuilder();
+        builder.add("a", "b");
+        builder.add("a", "c");
+        
     }
 }

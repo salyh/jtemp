@@ -26,12 +26,19 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.json.JsonArrayBuilder;
+import javax.json.JsonException;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 import javax.json.JsonValue;
 
 class JsonObjectBuilderImpl implements JsonObjectBuilder, Serializable {
     private Map<String, JsonValue> tmpMap;
+    private final boolean allowDuplicateKeys;
+
+    public JsonObjectBuilderImpl(boolean allowDuplicateKeys) {
+        super();
+        this.allowDuplicateKeys = allowDuplicateKeys;
+    }
 
     @Override
     public JsonObjectBuilder add(final String name, final JsonValue value) {
@@ -106,6 +113,10 @@ class JsonObjectBuilderImpl implements JsonObjectBuilder, Serializable {
         
         if(tmpMap==null){
             tmpMap=new LinkedHashMap<String, JsonValue>();
+        }
+        
+        if(!allowDuplicateKeys && tmpMap.containsKey(name)) {
+            throw new JsonException("Duplicate keys not allowed.");
         }
         
         tmpMap.put(name, value);
