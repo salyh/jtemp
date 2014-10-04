@@ -124,6 +124,8 @@ public class JsonProviderImpl extends JsonProvider implements Serializable {
         private final JsonReaderFactory readerFactory = new JsonReaderFactoryImpl(Collections.<String, Object>emptyMap());
         private final JsonParserFactory parserFactory = new JsonParserFactoryImpl(Collections.<String, Object>emptyMap());
         private final JsonGeneratorFactory generatorFactory = new JsonGeneratorFactoryImpl(Collections.<String, Object>emptyMap());
+        private final JsonWriterFactory writerFactory = new JsonWriterFactoryImpl(Collections.<String, Object>emptyMap());
+        private final JsonBuilderFactory builderFactory = new JsonBuilderFactoryImpl(Collections.<String, Object>emptyMap());
         private static final Charset UTF8_CHARSET = Charset.forName("UTF-8");
 
         @Override
@@ -156,7 +158,6 @@ public class JsonProviderImpl extends JsonProvider implements Serializable {
             return new JsonReaderFactoryImpl(config);
         }
 
-        @SuppressWarnings("unchecked")
         @Override
         public JsonGenerator createGenerator(final Writer writer) {
             return generatorFactory.createGenerator(writer);
@@ -174,12 +175,12 @@ public class JsonProviderImpl extends JsonProvider implements Serializable {
 
         @Override
         public JsonWriter createWriter(final Writer writer) {
-            return new JsonWriterImpl(createGenerator(writer));
+            return writerFactory.createWriter(writer);
         }
 
         @Override
         public JsonWriter createWriter(final OutputStream out) {
-            return createWriter(new OutputStreamWriter(out, UTF8_CHARSET));
+            return writerFactory.createWriter(out);
         }
 
         @Override
@@ -189,12 +190,12 @@ public class JsonProviderImpl extends JsonProvider implements Serializable {
 
         @Override
         public JsonObjectBuilder createObjectBuilder() {
-            return new JsonObjectBuilderImpl();
+            return builderFactory.createObjectBuilder();
         }
 
         @Override
         public JsonArrayBuilder createArrayBuilder() {
-            return new JsonArrayBuilderImpl();
+            return builderFactory.createArrayBuilder();
         }
 
         @Override

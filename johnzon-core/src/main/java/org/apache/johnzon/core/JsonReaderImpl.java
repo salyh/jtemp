@@ -20,6 +20,7 @@ package org.apache.johnzon.core;
 
 import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
+import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 import javax.json.JsonReader;
@@ -30,9 +31,11 @@ import javax.json.stream.JsonParsingException;
 class JsonReaderImpl implements JsonReader {
     private final JsonParser parser;
     private boolean closed = false;
+    private final JsonBuilderFactory builderFactory;
 
-    JsonReaderImpl(final JsonParser parser) {
+    JsonReaderImpl(final JsonParser parser, JsonBuilderFactory builderFactory) {
         this.parser = parser;
+        this.builderFactory = builderFactory;
     }
 
     @Override
@@ -45,7 +48,7 @@ class JsonReaderImpl implements JsonReader {
         }
         switch (parser.next()) {
             case START_OBJECT:
-                final JsonObjectBuilder objectBuilder = new JsonObjectBuilderImpl();
+                final JsonObjectBuilder objectBuilder = builderFactory.createObjectBuilder();
                 parseObject(objectBuilder);
                 if (parser.hasNext()) {
                     throw new JsonParsingException("Expected end of file", parser.getLocation());
@@ -53,7 +56,7 @@ class JsonReaderImpl implements JsonReader {
                 close();
                 return objectBuilder.build();
             case START_ARRAY:
-                final JsonArrayBuilder arrayBuilder = new JsonArrayBuilderImpl();
+                final JsonArrayBuilder arrayBuilder = builderFactory.createArrayBuilder();
                 parseArray(arrayBuilder);
                 if (parser.hasNext()) {
                     throw new JsonParsingException("Expected end of file", parser.getLocation());
@@ -102,13 +105,13 @@ class JsonReaderImpl implements JsonReader {
 
                 case START_OBJECT:
                     JsonObjectBuilder subObject = null;
-                    parseObject(subObject = new JsonObjectBuilderImpl());
+                    parseObject(subObject = builderFactory.createObjectBuilder());
                     builder.add(key, subObject);
                     break;
 
                 case START_ARRAY:
                     JsonArrayBuilder subArray = null;
-                    parseArray(subArray = new JsonArrayBuilderImpl());
+                    parseArray(subArray = builderFactory.createArrayBuilder());
                     builder.add(key, subArray);
                     break;
 
@@ -162,13 +165,13 @@ class JsonReaderImpl implements JsonReader {
 
                 case START_OBJECT:
                     JsonObjectBuilder subObject = null;
-                    parseObject(subObject = new JsonObjectBuilderImpl());
+                    parseObject(subObject = builderFactory.createObjectBuilder());
                     builder.add(subObject);
                     break;
 
                 case START_ARRAY:
                     JsonArrayBuilder subArray = null;
-                    parseArray(subArray = new JsonArrayBuilderImpl());
+                    parseArray(subArray = builderFactory.createArrayBuilder());
                     builder.add(subArray);
                     break;
 

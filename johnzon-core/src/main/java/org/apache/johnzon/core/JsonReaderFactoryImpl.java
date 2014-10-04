@@ -32,9 +32,13 @@ import javax.json.JsonReaderFactory;
 class JsonReaderFactoryImpl implements JsonReaderFactory, Serializable {
     private final Map<String, Object> internalConfig = new HashMap<String, Object>();
     private static final String[] SUPPORTED_CONFIG_KEYS = new String[] {
-        JsonParserFactoryImpl.BUFFER_STRATEGY, JsonParserFactoryImpl.MAX_STRING_LENGTH, JsonParserFactoryImpl.BUFFER_LENGTH
+        JsonParserFactoryImpl.BUFFER_STRATEGY, 
+        JsonParserFactoryImpl.MAX_STRING_LENGTH, 
+        JsonParserFactoryImpl.BUFFER_LENGTH,
+        JsonBuilderFactoryImpl.ALLOW_DUPLICATE_KEYS
     };
     private final JsonParserFactoryImpl parserFactory;
+    private final JsonBuilderFactoryImpl builderFactory;
 
     JsonReaderFactoryImpl(final Map<String, ?> config) {
 
@@ -48,21 +52,22 @@ class JsonReaderFactoryImpl implements JsonReaderFactory, Serializable {
         } 
         
         this.parserFactory = new JsonParserFactoryImpl(internalConfig);
+        this.builderFactory = new JsonBuilderFactoryImpl(internalConfig);
     }
 
     @Override
     public JsonReader createReader(final Reader reader) {
-        return new JsonReaderImpl(parserFactory.createInternalParser(reader));
+        return new JsonReaderImpl(parserFactory.createInternalParser(reader), builderFactory);
     }
 
     @Override
     public JsonReader createReader(final InputStream in) {
-        return new JsonReaderImpl(parserFactory.createInternalParser(in));
+        return new JsonReaderImpl(parserFactory.createInternalParser(in), builderFactory);
     }
 
     @Override
     public JsonReader createReader(final InputStream in, final Charset charset) {
-        return new JsonReaderImpl(parserFactory.createInternalParser(in, charset));
+        return new JsonReaderImpl(parserFactory.createInternalParser(in, charset), builderFactory);
     }
 
     @Override

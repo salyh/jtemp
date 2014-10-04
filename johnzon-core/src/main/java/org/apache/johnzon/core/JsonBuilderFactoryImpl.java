@@ -25,11 +25,14 @@ import java.util.Map;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObjectBuilder;
+import javax.json.stream.JsonGenerator;
 
 class JsonBuilderFactoryImpl implements JsonBuilderFactory {
+    public static final String ALLOW_DUPLICATE_KEYS = "org.apache.johnzon.allow-duplicate-keys";
     private final Map<String, Object> internalConfig = new HashMap<String, Object>();
     private static final String[] SUPPORTED_CONFIG_KEYS = new String[] {
-    //nothing yet
+    
+        ALLOW_DUPLICATE_KEYS
 
     };
 
@@ -42,11 +45,19 @@ class JsonBuilderFactoryImpl implements JsonBuilderFactory {
                 }
             }
         }
+        
+        if(internalConfig.containsKey(ALLOW_DUPLICATE_KEYS)) {
+            this.allowDuplicates = Boolean.TRUE.equals(internalConfig.get(ALLOW_DUPLICATE_KEYS)) || "true".equals(internalConfig.get(ALLOW_DUPLICATE_KEYS));
+        } else {
+            this.allowDuplicates = true; //TODO testcase for false
+        }
     }
+    
+    private boolean allowDuplicates;
 
     @Override
     public JsonObjectBuilder createObjectBuilder() {
-        return new JsonObjectBuilderImpl();
+        return new JsonObjectBuilderImpl(allowDuplicates);
     }
 
     @Override
