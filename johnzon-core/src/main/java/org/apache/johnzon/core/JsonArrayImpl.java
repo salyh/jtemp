@@ -20,7 +20,7 @@ package org.apache.johnzon.core;
 
 import java.io.Serializable;
 import java.util.AbstractList;
-import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.json.JsonArray;
@@ -30,19 +30,20 @@ import javax.json.JsonString;
 import javax.json.JsonValue;
 
 class JsonArrayImpl extends AbstractList<JsonValue> implements JsonArray, Serializable {
-    private final Integer hashCode = null;
-    private final JsonValue[] unmodifieableBackingList;
+    private Integer hashCode = null;
+    private final List<JsonValue> unmodifieableBackingList;
+    private int size = -1;
 
-    JsonArrayImpl(final JsonValue[] backingList) {
+    JsonArrayImpl(final List<JsonValue> backingList) {
         super();
         this.unmodifieableBackingList = backingList;
     }
 
     private <T> T value(final int idx, final Class<T> type) {
-        if (idx > unmodifieableBackingList.length) {
-            throw new IndexOutOfBoundsException(idx + "/" + unmodifieableBackingList.length);
+        if (idx > unmodifieableBackingList.size()) {
+            throw new IndexOutOfBoundsException(idx + "/" + unmodifieableBackingList.size());
         }
-        return type.cast(unmodifieableBackingList[idx]);
+        return type.cast(unmodifieableBackingList.get(idx));
     }
 
     @Override
@@ -67,7 +68,7 @@ class JsonArrayImpl extends AbstractList<JsonValue> implements JsonArray, Serial
 
     @Override
     public <T extends JsonValue> List<T> getValuesAs(final Class<T> clazz) {
-        return (List<T>) Arrays.asList(unmodifieableBackingList);
+        return (List<T>) unmodifieableBackingList;
     }
 
     @Override
@@ -78,8 +79,14 @@ class JsonArrayImpl extends AbstractList<JsonValue> implements JsonArray, Serial
     @Override
     public String getString(final int index, final String defaultValue) {
         JsonValue val = null;
+        int s = size;
 
-        if (index > unmodifieableBackingList.length - 1 || !((val = get(index)) instanceof JsonString)) {
+        if (s == -1) {
+            s = unmodifieableBackingList.size();
+            size = s;
+        }
+
+        if (index > s - 1 || !((val = get(index)) instanceof JsonString)) {
             return defaultValue;
         } else {
             return JsonString.class.cast(val).getString();
@@ -94,8 +101,14 @@ class JsonArrayImpl extends AbstractList<JsonValue> implements JsonArray, Serial
     @Override
     public int getInt(final int index, final int defaultValue) {
         JsonValue val = null;
+        int s = size;
 
-        if (index > unmodifieableBackingList.length - 1 || !((val = get(index)) instanceof JsonNumber)) {
+        if (s == -1) {
+            s = unmodifieableBackingList.size();
+            size = s;
+        }
+
+        if (index > s - 1 || !((val = get(index)) instanceof JsonNumber)) {
             return defaultValue;
         } else {
             return JsonNumber.class.cast(val).intValue();
@@ -119,7 +132,14 @@ class JsonArrayImpl extends AbstractList<JsonValue> implements JsonArray, Serial
     @Override
     public boolean getBoolean(final int index, final boolean defaultValue) {
 
-        if (index > unmodifieableBackingList.length - 1) {
+        int s = size;
+
+        if (s == -1) {
+            s = unmodifieableBackingList.size();
+            size = s;
+        }
+
+        if (index > s - 1) {
             return defaultValue;
         }
 
@@ -148,16 +168,17 @@ class JsonArrayImpl extends AbstractList<JsonValue> implements JsonArray, Serial
     @Override
     public String toString() {
         final StringBuilder builder = new StringBuilder("[");
-
-        for (int i = 0; i < unmodifieableBackingList.length; i++) {
-            final JsonValue jsonValue = unmodifieableBackingList[i];
+        final Iterator<JsonValue> it = unmodifieableBackingList.iterator();
+        boolean hasNext = it.hasNext();
+        while (hasNext) {
+            final JsonValue jsonValue = it.next();
             if (JsonString.class.isInstance(jsonValue)) {
                 builder.append(jsonValue.toString());
             } else {
                 builder.append(jsonValue != JsonValue.NULL ? jsonValue.toString() : JsonChars.NULL);
             }
-            // hasNext = it.hasNext();
-            if (i != unmodifieableBackingList.length - 1) {
+            hasNext = it.hasNext();
+            if (hasNext) {
                 builder.append(",");
             }
         }
@@ -167,7 +188,7 @@ class JsonArrayImpl extends AbstractList<JsonValue> implements JsonArray, Serial
     @Override
     public boolean equals(final Object obj) {
         return JsonArrayImpl.class.isInstance(obj)
-                && Arrays.deepEquals(unmodifieableBackingList, (JsonArrayImpl.class.cast(obj).unmodifieableBackingList));
+                && unmodifieableBackingList.equals(JsonArrayImpl.class.cast(obj).unmodifieableBackingList);
     }
 
     @Override
@@ -175,18 +196,18 @@ class JsonArrayImpl extends AbstractList<JsonValue> implements JsonArray, Serial
         Integer h = hashCode;
         if (h == null) {
             h = unmodifieableBackingList.hashCode();
-            h = hashCode;
+            hashCode = h;
         }
         return h;
     }
 
     @Override
     public JsonValue get(final int index) {
-        return unmodifieableBackingList[index];
+        return unmodifieableBackingList.get(index);
     }
 
     @Override
     public int size() {
-        return unmodifieableBackingList.length;
+        return unmodifieableBackingList.size();
     }
 }

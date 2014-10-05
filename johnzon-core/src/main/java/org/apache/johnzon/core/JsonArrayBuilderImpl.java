@@ -21,7 +21,9 @@ package org.apache.johnzon.core;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
@@ -29,7 +31,7 @@ import javax.json.JsonObjectBuilder;
 import javax.json.JsonValue;
 
 class JsonArrayBuilderImpl implements JsonArrayBuilder, Serializable {
-    private LinkedList<JsonValue> tmpList;
+    private List<JsonValue> tmpList;
 
     @Override
     public JsonArrayBuilder add(final JsonValue value) {
@@ -103,7 +105,7 @@ class JsonArrayBuilderImpl implements JsonArrayBuilder, Serializable {
         }
 
         if (tmpList == null) {
-            tmpList = new LinkedList<JsonValue>();
+            tmpList = new ArrayList<JsonValue>();
         }
 
         tmpList.add(value);
@@ -113,10 +115,9 @@ class JsonArrayBuilderImpl implements JsonArrayBuilder, Serializable {
     public JsonArray build() {
 
         if (tmpList == null) {
-            return new JsonArrayImpl(new JsonValue[0]);
+            return new JsonArrayImpl(Collections.EMPTY_LIST);
         } else {
-            final JsonValue[] dump = (tmpList.toArray(new JsonValue[tmpList.size()]));
-            tmpList.clear();
+            final List<JsonValue> dump = (Collections.unmodifiableList(tmpList));
             tmpList = null;
             return new JsonArrayImpl(dump);
         }
