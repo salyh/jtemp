@@ -20,7 +20,6 @@ package org.apache.johnzon.core;
 
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Serializable;
 import java.io.Writer;
@@ -43,7 +42,6 @@ import javax.json.stream.JsonParserFactory;
 
 public class JsonProviderImpl extends JsonProvider implements Serializable {
     private static final JsonProvider DELEGATE = new JsonProviderDelegate();
-    
 
     @Override
     public JsonParser createParser(final Reader reader) {
@@ -116,16 +114,16 @@ public class JsonProviderImpl extends JsonProvider implements Serializable {
     }
 
     @Override
-    public JsonBuilderFactory createBuilderFactory(Map<String, ?> stringMap) {
+    public JsonBuilderFactory createBuilderFactory(final Map<String, ?> stringMap) {
         return DELEGATE.createBuilderFactory(stringMap);
     }
 
     static class JsonProviderDelegate extends JsonProvider {
-        private final JsonReaderFactory readerFactory = new JsonReaderFactoryImpl(Collections.<String, Object>emptyMap());
-        private final JsonParserFactory parserFactory = new JsonParserFactoryImpl(Collections.<String, Object>emptyMap());
-        private final JsonGeneratorFactory generatorFactory = new JsonGeneratorFactoryImpl(Collections.<String, Object>emptyMap());
-        private final JsonWriterFactory writerFactory = new JsonWriterFactoryImpl(Collections.<String, Object>emptyMap());
-        private final JsonBuilderFactory builderFactory = new JsonBuilderFactoryImpl(Collections.<String, Object>emptyMap());
+        private final JsonReaderFactory readerFactory = new JsonReaderFactoryImpl(Collections.<String, Object> emptyMap());
+        private final JsonParserFactory parserFactory = new JsonParserFactoryImpl(Collections.<String, Object> emptyMap());
+        private final JsonGeneratorFactory generatorFactory = new JsonGeneratorFactoryImpl(Collections.<String, Object> emptyMap());
+        private final JsonWriterFactory writerFactory = new JsonWriterFactoryImpl(Collections.<String, Object> emptyMap());
+        private final JsonBuilderFactory builderFactory = new JsonBuilderFactoryImpl(Collections.<String, Object> emptyMap());
         private static final Charset UTF8_CHARSET = Charset.forName("UTF-8");
 
         @Override
