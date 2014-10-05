@@ -21,9 +21,7 @@ package org.apache.johnzon.core;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.LinkedList;
 
 import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
@@ -31,7 +29,7 @@ import javax.json.JsonObjectBuilder;
 import javax.json.JsonValue;
 
 class JsonArrayBuilderImpl implements JsonArrayBuilder, Serializable {
-    private List<JsonValue> tmpList;
+    private LinkedList<JsonValue> tmpList;
 
     @Override
     public JsonArrayBuilder add(final JsonValue value) {
@@ -98,30 +96,31 @@ class JsonArrayBuilderImpl implements JsonArrayBuilder, Serializable {
         addValue(builder.build());
         return this;
     }
-    
-    private void addValue(JsonValue value){
+
+    private void addValue(final JsonValue value) {
         if (value == null) {
             throw npe();
         }
-        
-        if(tmpList==null){
-            tmpList=new ArrayList<JsonValue>();
+
+        if (tmpList == null) {
+            tmpList = new LinkedList<JsonValue>();
         }
-        
+
         tmpList.add(value);
     }
 
     @Override
     public JsonArray build() {
-        
-        if(tmpList == null) {
-            return new JsonArrayImpl(Collections.EMPTY_LIST);
+
+        if (tmpList == null) {
+            return new JsonArrayImpl(new JsonValue[0]);
         } else {
-            List<JsonValue> dump = (Collections.unmodifiableList(tmpList));
-            tmpList=null;
+            final JsonValue[] dump = (tmpList.toArray(new JsonValue[tmpList.size()]));
+            tmpList.clear();
+            tmpList = null;
             return new JsonArrayImpl(dump);
         }
-        
+
     }
 
     private static NullPointerException npe() {
