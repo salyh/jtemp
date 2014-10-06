@@ -31,28 +31,28 @@ import javax.json.JsonReaderFactory;
 
 class JsonReaderFactoryImpl implements JsonReaderFactory, Serializable {
     private final Map<String, Object> internalConfig = new HashMap<String, Object>();
-    private static final String[] SUPPORTED_CONFIG_KEYS = new String[] {
-        JsonParserFactoryImpl.BUFFER_STRATEGY, 
-        JsonParserFactoryImpl.MAX_STRING_LENGTH, 
-        JsonParserFactoryImpl.BUFFER_LENGTH,
-        JsonBuilderFactoryImpl.ALLOW_DUPLICATE_KEYS
-    };
+    private static final String[] SUPPORTED_CONFIG_KEYS = new String[] { JsonParserFactoryImpl.BUFFER_STRATEGY,
+            JsonParserFactoryImpl.MAX_STRING_LENGTH, JsonParserFactoryImpl.BUFFER_LENGTH, JsonBuilderFactoryImpl.ALLOW_DUPLICATE_KEYS };
     private final JsonParserFactoryImpl parserFactory;
     private final JsonBuilderFactoryImpl builderFactory;
 
     JsonReaderFactoryImpl(final Map<String, ?> config) {
 
-        if(config != null) {
-            
-            for (String configKey : SUPPORTED_CONFIG_KEYS) {
-                if(config.containsKey(configKey)) {
+        if (config != null) {
+
+            for (final String configKey : SUPPORTED_CONFIG_KEYS) {
+                if (config.containsKey(configKey)) {
                     internalConfig.put(configKey, config.get(configKey));
                 }
             }
-        } 
-        
-        this.parserFactory = new JsonParserFactoryImpl(internalConfig);
-        this.builderFactory = new JsonBuilderFactoryImpl(internalConfig);
+
+            this.parserFactory = new JsonParserFactoryImpl(internalConfig);
+            this.builderFactory = new JsonBuilderFactoryImpl(internalConfig);
+        } else {
+            this.parserFactory = new JsonParserFactoryImpl(null);
+            this.builderFactory = new JsonBuilderFactoryImpl(null);
+        }
+
     }
 
     @Override

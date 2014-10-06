@@ -49,11 +49,11 @@ class JsonBuilderFactoryImpl implements JsonBuilderFactory {
             this.allowDuplicates = Boolean.TRUE.equals(internalConfig.get(ALLOW_DUPLICATE_KEYS))
                     || "true".equals(internalConfig.get(ALLOW_DUPLICATE_KEYS));
         } else {
-            this.allowDuplicates = true; // TODO testcase for false
+            this.allowDuplicates = true;
         }
     }
 
-    private boolean allowDuplicates;
+    private final boolean allowDuplicates;
 
     @Override
     public JsonObjectBuilder createObjectBuilder() {
